@@ -22,8 +22,9 @@ create)
   cat ids.env
   ;;
 push)
-  ssh -o StrictHostKeyChecking=accept-new ubuntu@"$IP" 'mkdir -p board && cloud-init status --wait >/dev/null'
+  ssh -o StrictHostKeyChecking=accept-new ubuntu@"$IP" 'mkdir -p board/bounty board/secret && cloud-init status --wait >/dev/null'
   scp -q app.py key.pub Caddyfile board.service ubuntu@"$IP":board/
+  scp -q bounty/problems.json ubuntu@"$IP":board/bounty/ && scp -q secret/worker.token ubuntu@"$IP":board/secret/
   ssh ubuntu@"$IP" "sudo cp board/board.service /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now board && sudo systemctl restart board \
     && sudo cp board/Caddyfile /etc/caddy/Caddyfile && echo '${DOMAIN:+DOMAIN=$DOMAIN}' | sudo tee /etc/caddy/env >/dev/null && sudo systemctl restart caddy"
   ;;

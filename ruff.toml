@@ -1,0 +1,4 @@
+line-length = 140
+
+[lint]
+ignore = ["SIM115"]
