@@ -1,0 +1,12 @@
+[Unit]
+Description=ZZZAgentBoard
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/board
+ExecStart=/usr/bin/python3 app.py 8080
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
