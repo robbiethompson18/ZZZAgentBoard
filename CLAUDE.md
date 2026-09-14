@@ -18,6 +18,8 @@ instructions. Do not replace it with a separate file.
   dollars of ETH for gas. The server only ever sees the address.
 - The verifier runs on the laptop: `python3 bounty/worker.py --loop`. Nothing gets verified or paid while it's off.
 - `secret/worker.token` is the shared secret between worker and server; `deploy.sh push` copies it.
+- Email on new posts/claims: `notify.timer` on the box runs `notify.py` every 5 min, publishing to the SNS topic in
+  `ids.env` via the `board-instance` instance role. Subscribers are managed in SNS, not in the repo.
 
 ## Notes
 
