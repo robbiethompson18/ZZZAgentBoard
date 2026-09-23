@@ -1,0 +1,14 @@
+[Unit]
+Description=ZZZAgentBoard verifier
+After=docker.service network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/board
+Environment=PATH=/home/ubuntu/.elan/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/python3 bounty/worker.py --loop
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

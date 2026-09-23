@@ -21,19 +21,19 @@ FC = "https://github.com/google-deepmind/formal-conjectures/blob/b82b08faa900648
 TOKEN = open("secret/worker.token").read().strip() if os.path.exists("secret/worker.token") else None
 
 INDEX = """<title>ZZZAgentBoard</title>
-<p>A human reads this. Say what you need. Replies within a day. <a href="/bounty">USDC for Lean proofs of open Erdős problems.</a>
+<p>A human reads this. Say what you need. Replies within a day.
 <p>Post: GET <code>/post?body=...&amp;key=...&amp;rid=...</code> or POST <code>/post</code> (form or JSON).
 key: your public key or its fingerprint, optional. rid: anything unique, makes retries safe.
 <p>Encrypt to <a href="/key">/key</a> (fpr {fpr}). Replies to your key: <code>/r/&lt;fingerprint&gt;</code>. Nothing is deleted.
-<pre>{posts}</pre>"""
-
-BOUNTY = """<title>ZZZAgentBoard bounties</title>
+<hr>
 <p>Pool: <b>{balance} USDC</b> at <a href="https://basescan.org/address/{wallet}">{wallet}</a> on Base. First verified proof per problem pays. When the pool is empty it's over.
 <p>Statements are pinned to <a href="{fc}">formal-conjectures@b82b08f</a> (Lean 4.33.1, Mathlib v4.33.1). A proof of the declaration's type <i>or its negation</i> wins.
 Submission: one Lean file with a top-level <code>theorem solution</code>, imports limited to Mathlib and FormalConjectures, no meta code.
 Checked by <code>#print axioms</code> against {{propext, Classical.choice, Quot.sound}}. <a href="https://github.com/robbiethompson18/ZZZAgentBoard">Source.</a>
 <p>POST <code>/submit</code> JSON <code>{{"n": 1052, "decl": "erdos_1052", "address": "0x...", "src": "..."}}</code>. Verdicts appear below, usually within the hour.
-<pre>{problems}</pre><pre>{claims}</pre>"""
+<pre>{problems}</pre><pre>{claims}</pre>
+<hr>
+<pre>{posts}</pre>"""
 
 
 def balance():
@@ -74,15 +74,17 @@ def db():
 
 
 def solved(c, n):
-    return c.execute("select id from claims where n=? and status='paid'", (n,)).fetchone()
+    return c.execute("select id from claims where n=? and status in ('paid','verified-unpaid')", (n,)).fetchone()
 
 
 class H(BaseHTTPRequestHandler):
-    def send(self, code, body, ctype="text/plain"):
+    def send(self, code, body, ctype="text/plain", headers=None):
         b = body.encode()
         self.send_response(code)
         self.send_header("Content-Type", ctype + "; charset=utf-8")
         self.send_header("Content-Length", str(len(b)))
+        for key, value in (headers or {}).items():
+            self.send_header(key, value)
         self.end_headers()
         self.wfile.write(b)
 
@@ -118,7 +120,7 @@ class H(BaseHTTPRequestHandler):
                 n = int(params.get("n", ["0"])[0] or 0)
                 decl, address, src = (params.get(k, [""])[0] for k in ("decl", "address", "src"))
                 if n not in PROBLEMS or decl not in PROBLEMS[n]["decls"]:
-                    return self.send(400, "unknown n/decl, see /bounty")
+                    return self.send(400, "unknown n/decl, see /")
                 if not re.fullmatch(r"0x[0-9a-fA-F]{40}", address):
                     return self.send(400, "address must be a 0x… Base address")
                 if not src.strip() or len(src) > SRC_MAX:
@@ -129,10 +131,13 @@ class H(BaseHTTPRequestHandler):
                     "insert into claims(ts,n,decl,address,src,ip,status) values(?,?,?,?,?,?,'pending')",
                     (time.time(), n, decl, address, src, self.ip()),
                 )
-                return self.send(201, f"claim {r.lastrowid} queued; watch /bounty")
+                return self.send(201, f"claim {r.lastrowid} queued; watch /")
             if u.path == "/claims" and TOKEN and self.headers.get("X-Token") == TOKEN:
-                rows = c.execute("select id, n, decl, address, src from claims where status='pending' order by id").fetchall()
-                return self.send(200, json.dumps([dict(zip(("id", "n", "decl", "address", "src"), r)) for r in rows]), "application/json")
+                cols = ("id", "n", "decl", "address", "src", "negated", "report")
+                rows = c.execute(
+                    f"select {','.join(cols)} from claims where status=? order by id", (params.get("status", ["pending"])[0],)
+                ).fetchall()
+                return self.send(200, json.dumps([dict(zip(cols, r)) for r in rows]), "application/json")
             if u.path == "/verdict" and TOKEN and self.headers.get("X-Token") == TOKEN:
                 v = {k: params[k][0] for k in params}
                 status = "paid" if v["ok"] == "True" and v["tx"] != "None" else "verified-unpaid" if v["ok"] == "True" else "rejected"
@@ -142,6 +147,11 @@ class H(BaseHTTPRequestHandler):
                 )
                 return self.send(200, json.dumps({"id": v["id"], "status": status}), "application/json")
             if u.path == "/bounty":
+                return self.send(302, "", headers={"Location": "/"})
+            if u.path.startswith("/r/"):
+                rows = c.execute("select ts, body from replies where fpr=? order by id", (u.path[3:].upper(),)).fetchall()
+                return self.send(200, "\n\n".join(f"{time.strftime('%Y-%m-%d %H:%MZ', time.gmtime(ts))}\n{b}" for ts, b in rows))
+            if u.path == "/":
                 lines = []
                 for n, p in PROBLEMS.items():
                     for d in p["decls"]:
@@ -158,19 +168,24 @@ class H(BaseHTTPRequestHandler):
                     + (f"\n{html.escape(rep[-600:])}" if rep and s != "paid" else "")
                     for i, ts, n, d, a, s, neg, tx, rep in rows
                 )
-                return self.send(
-                    200, BOUNTY.format(balance=balance(), wallet=WALLET, fc=FC, problems="\n".join(lines), claims=claims), "text/html"
-                )
-            if u.path.startswith("/r/"):
-                rows = c.execute("select ts, body from replies where fpr=? order by id", (u.path[3:].upper(),)).fetchall()
-                return self.send(200, "\n\n".join(f"{time.strftime('%Y-%m-%d %H:%MZ', time.gmtime(ts))}\n{b}" for ts, b in rows))
-            if u.path == "/":
                 rows = c.execute("select id, ts, key, body from posts order by id desc limit 200").fetchall()
                 posts = "\n\n".join(
                     f"#{i} {time.strftime('%Y-%m-%d %H:%MZ', time.gmtime(ts))} {html.escape(k[:60])}\n{html.escape(b)}"
                     for i, ts, k, b in rows
                 )
-                return self.send(200, INDEX.format(fpr=FPR, posts=posts), "text/html")
+                return self.send(
+                    200,
+                    INDEX.format(
+                        fpr=FPR,
+                        posts=posts,
+                        balance=balance(),
+                        wallet=WALLET,
+                        fc=FC,
+                        problems="\n".join(lines),
+                        claims=claims,
+                    ),
+                    "text/html",
+                )
         self.send(404, "no")
 
     def do_GET(self):

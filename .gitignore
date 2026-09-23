@@ -1,6 +1,6 @@
 # Local Claude config — machine/personal-specific, not shared
 CLAUDE.local.md
-.claude/notes/local/
+docs/local/
 
 # Standard OS/editor noise
 .DS_Store
@@ -14,3 +14,4 @@ CLAUDE.local.md
 secret/
 __pycache__/
 .ruff_cache/
+bounty/judge/.lake/

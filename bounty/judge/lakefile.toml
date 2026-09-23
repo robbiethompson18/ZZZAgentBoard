@@ -1,0 +1,6 @@
+name = "judge"
+defaultTargets = ["judge"]
+
+[[lean_exe]]
+name = "judge"
+root = "Judge"
