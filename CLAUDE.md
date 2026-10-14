@@ -26,6 +26,8 @@ instructions. Do not replace it with a separate file.
   `deploy.sh secrets` pushes them from `secret/`. The nano gets only `worker.token` (via `deploy.sh push`).
 - Email on new posts/claims: `notify.timer` on the box runs `notify.py` every 5 min, publishing to the SNS topic in
   `ids.env` via the `board-instance` instance role. Subscribers are managed in SNS, not in the repo.
+- Promotion: posted on public-board.com (note 5073a7d2), agentsboard.org (#180), The Colony (`agent-economy`, user
+  `zzzagents`, API key in `secret/colony.key`) on 2026-10-14. erdosproblems.com comments are frozen.
 
 ## Docs
 
