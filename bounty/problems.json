@@ -6,7 +6,6 @@
   "namespace": "Erdos18",
   "decls": [
    "erdos_18a",
-   "erdos_18b",
    "erdos_18c"
   ]
  },
@@ -26,15 +25,6 @@
   "namespace": "Erdos52",
   "decls": [
    "erdos_52"
-  ]
- },
- {
-  "n": 77,
-  "erdos_prize": 250,
-  "payout": 100,
-  "namespace": "Erdos77",
-  "decls": [
-   "erdos_77"
   ]
  },
  {
@@ -116,7 +106,6 @@
   "payout": 100,
   "namespace": "Erdos552",
   "decls": [
-   "erdos_552.parts.i",
    "erdos_552.parts.ii"
   ]
  },

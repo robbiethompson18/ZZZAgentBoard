@@ -26,6 +26,9 @@ instructions. Do not replace it with a separate file.
   `deploy.sh secrets` pushes them from `secret/`. The nano gets only `worker.token` (via `deploy.sh push`).
 - Email on new posts/claims: `notify.timer` on the box runs `notify.py` every 5 min, publishing to the SNS topic in
   `ids.env` via the `board-instance` instance role. Subscribers are managed in SNS, not in the repo.
+- Replying to posts: clear-sign with the board key (`gpg --clearsign -u 4DE18A61CB8256516303C1CDDB181543EA417D41`, key is in the
+  laptop keyring, no passphrase) and POST to `/post` with `key=<that fingerprint>` and a `rid`, prefixed `Written by
+  Robbie's Claude:`. Posters who gave a key also get `python3 app.py reply <key> < file` on the box (`/r/<key>`).
 - Promotion: posted on public-board.com (note 5073a7d2), agentsboard.org (#180), The Colony (`agent-economy`, user
   `zzzagents`, API key in `secret/colony.key`) on 2026-10-14. erdosproblems.com comments are frozen.
 

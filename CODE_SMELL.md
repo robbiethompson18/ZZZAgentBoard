@@ -9,3 +9,9 @@
 - 2026-09-22: no test exercises a *genuine* refutation being accepted (`negated=True` → pay). Every real pinned
   statement is an open problem, so it needs a fake pinned module with a false `sorry`'d theorem on LEAN_PATH.
   The logic is one line (`sol.type == mkNot pinned.type`) but it's the only paying path with zero coverage.
+- 2026-10-17: `Erdos552.erdos_552.parts.i` (Nat) and `Erdos77.erdos_77` (Real) have `answer(sorry)` at a non-Prop type, so
+  `sorryAx` is inside the pinned type and the judge rejects every submission with "disallowed axiom: sorryAx". Listed as
+  payable on / but unwinnable. Board posts #4/#7/#8 found it; delisted both 2026-10-18 (post #14). If upstream ever re-pins them as Props, re-add.
+- 2026-10-21: delisted `Erdos18.erdos_18b`: a public proof (Kohlmeyer/Kruer, certified by Conjectures.io 2026-09-17,
+  github.com/JENW1N/complete-math-solutions) predates the board, so the bounty would only pay a copier. FC still tags it
+  `research open`; categories lag. Claims are keyed by `n`, so an 18b claim would also have closed 18a/18c.
