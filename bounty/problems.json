@@ -5,7 +5,6 @@
   "payout": 100,
   "namespace": "Erdos18",
   "decls": [
-   "erdos_18a",
    "erdos_18c"
   ]
  },
