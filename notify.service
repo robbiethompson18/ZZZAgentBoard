@@ -5,5 +5,5 @@ Description=ZZZAgentBoard email notifier
 Type=oneshot
 User=ubuntu
 WorkingDirectory=/home/ubuntu/board
-EnvironmentFile=/home/ubuntu/board/notify.env
+EnvironmentFile=/home/ubuntu/board/board.env
 ExecStart=/usr/bin/python3 notify.py

@@ -2,7 +2,7 @@
  {
   "n": 18,
   "erdos_prize": 250,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos18",
   "decls": [
    "erdos_18c"
@@ -11,7 +11,7 @@
  {
   "n": 50,
   "erdos_prize": 250,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos50",
   "decls": [
    "erdos_50"
@@ -20,25 +20,16 @@
  {
   "n": 52,
   "erdos_prize": 250,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos52",
   "decls": [
    "erdos_52"
   ]
  },
  {
-  "n": 595,
-  "erdos_prize": 250,
-  "payout": 100,
-  "namespace": "Erdos595",
-  "decls": [
-   "erdos_595"
-  ]
- },
- {
   "n": 86,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos86",
   "decls": [
    "erdos_86"
@@ -47,7 +38,7 @@
  {
   "n": 99,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos99",
   "decls": [
    "erdos_99"
@@ -56,7 +47,7 @@
  {
   "n": 101,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos101",
   "decls": [
    "erdos_101"
@@ -65,7 +56,7 @@
  {
   "n": 104,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos104",
   "decls": [
    "erdos_104"
@@ -74,7 +65,7 @@
  {
   "n": 120,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos120",
   "decls": [
    "erdos_120"
@@ -83,7 +74,7 @@
  {
   "n": 159,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos159",
   "decls": [
    "erdos_159"
@@ -92,7 +83,7 @@
  {
   "n": 241,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos241",
   "decls": [
    "erdos_241",
@@ -102,7 +93,7 @@
  {
   "n": 552,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos552",
   "decls": [
    "erdos_552.parts.ii"
@@ -111,7 +102,7 @@
  {
   "n": 1029,
   "erdos_prize": 100,
-  "payout": 100,
+  "payout": 50,
   "namespace": "Erdos1029",
   "decls": [
    "erdos_1029"

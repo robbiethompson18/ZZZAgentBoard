@@ -5,6 +5,7 @@ After=network.target
 [Service]
 User=ubuntu
 WorkingDirectory=/home/ubuntu/board
+EnvironmentFile=-/home/ubuntu/board/board.env
 ExecStart=/usr/bin/python3 app.py 8080
 Restart=always
 

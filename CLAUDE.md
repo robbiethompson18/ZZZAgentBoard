@@ -14,12 +14,18 @@ instructions. Do not replace it with a separate file.
 - Site copy stays near-zero. Don't add explanatory prose to `index` in `app.py`.
 - `secret/` is gitignored and holds the board's private PGP key. Never commit it.
 - Deploy with `./deploy.sh`; infra is two boxes in the personal AWS account (`--profile personal`): a t4g.nano for the
-  site and a t4g.large `verifier` that runs `bounty/worker.py --loop` as a systemd service.
+  site and a t4g.large `verifier` that runs `bounty/worker.py --loop` as a systemd service. The verifier is stopped
+  between claims (~$50/mo running vs ~$3/mo for its volume): `/submit` starts it via the nano's instance role,
+  `notify.py` retries every 5 min while claims are pending, and `verifier.service` powers it off once the queue has
+  been empty for two polls. Its public IP changes on every start; `push-verifier` starts it and looks the IP up.
 - Bounties: statements pinned to `~/repos/formal-conjectures` at `FC_COMMIT` in `bounty/verify.py` (laptop and verifier
   box alike). Bumping the commit means rebuilding on the box; `verifier-userdata.sh` does it from scratch.
 - Verification = compile in a no-network container, then `bounty/judge` (core-Lean only) replays the olean through the
   kernel and compares `solution`'s type to the pinned constant. Nothing textual from the submission is trusted. Run
   `bounty/test_verify.py` after touching either; every case is an exploit that once worked or plausibly could.
+- Payouts: every problem pays 50 USDC since 2026-11-07 (the pool opened at 100, paid 50 for #32 on 2026-11-05, and
+  is not being topped up). `payout` in `bounty/problems.json` must never exceed the wallet balance: the worker
+  sends it verbatim, the ERC-20 transfer reverts, and the claim strands as `verified-unpaid`.
 - Payout is automatic and unattended, by design: the wallet is deliberately small so a successful exploit costs little.
   Don't add a human gate. `verified-unpaid` only means the send failed; `python3 bounty/worker.py pay <id>` retries it.
 - Secrets (`zzz/wallet`, `zzz/worker-token`) live in Secrets Manager, readable only by the verifier's instance role;

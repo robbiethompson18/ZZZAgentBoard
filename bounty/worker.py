@@ -1,6 +1,8 @@
 """Verifier-box worker: pull pending submissions from the board, verify in the sandbox, pay USDC on Base, post verdicts.
 
   python3 bounty/worker.py [--loop]   verify pending claims -> paid / verified-unpaid (payment failed) / rejected
+                                      --loop: keep polling until the queue has been empty for two polls, then exit 0
+                                      (verifier.service powers the box off on that exit; app.py starts it on /submit)
   python3 bounty/worker.py pay <id>   retry the USDC send for a verified-unpaid claim
 
 Secrets come from Secrets Manager (`zzz/worker-token`, `zzz/wallet` = {"ADDRESS","PRIVATE_KEY"}) via the instance
@@ -50,8 +52,10 @@ def paid_problems():
 
 
 def run_once():
+    """Verify every pending claim. Returns how many it handled."""
     paid = paid_problems()
-    for s in api("/claims?status=pending"):
+    pending = api("/claims?status=pending")
+    for s in pending:
         p = PROBLEMS[s["n"]]
         print(f"#{s['id']} problem {s['n']} {s['decl']} -> {s['address']}", flush=True)
         archive = os.path.expanduser(f"~/claims/{s['id']}")  # everything the submission did in its sandbox, kept for forensics
@@ -66,6 +70,7 @@ def run_once():
             else:
                 rep += f"\n\nVERIFIED BUT PAYMENT FAILED: {err}"
         print(api("/verdict", {"id": s["id"], "ok": ok, "negated": neg, "report": rep, "tx": tx}), flush=True)
+    return len(pending)
 
 
 def send_usdc(to, usd):
@@ -103,9 +108,10 @@ def pay(claim_id):
 if __name__ == "__main__":
     if sys.argv[1:2] == ["pay"]:
         pay(int(sys.argv[2]))
-    else:
-        while True:
-            run_once()
-            if "--loop" not in sys.argv:
-                break
+    elif "--loop" in sys.argv:
+        idle = 0
+        while idle < 2:  # one empty poll is a grace period for a submitter iterating on a proof
+            idle = 0 if run_once() else idle + 1
             time.sleep(120)
+    else:
+        run_once()

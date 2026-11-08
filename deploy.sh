@@ -3,7 +3,8 @@
 # ./deploy.sh push            -> scp app + Caddyfile + unit, restart. DOMAIN env var enables TLS.
 # ./deploy.sh secrets         -> secret/worker.token and secret/wallet.env -> Secrets Manager (zzz/worker-token, zzz/wallet)
 # ./deploy.sh create-verifier -> t4g.large with a role that can read those secrets, builds Lean+Mathlib on first boot (~1h)
-# ./deploy.sh push-verifier   -> scp bounty/, build the judge, (re)start verifier.service
+# ./deploy.sh push-verifier   -> start the box if stopped, scp bounty/, build the judge, (re)start verifier.service
+#                                (the service powers the box off once the queue is empty; app.py starts it on /submit)
 set -eu
 export AWS_PROFILE=personal AWS_DEFAULT_REGION=us-east-1
 [ -f ids.env ] && . ./ids.env
@@ -29,7 +30,7 @@ push)
   scp -q app.py key.pub Caddyfile board.service ubuntu@"$IP":board/
   scp -q bounty/problems.json ubuntu@"$IP":board/bounty/ && scp -q secret/worker.token ubuntu@"$IP":board/secret/
   scp -q notify.py notify.service notify.timer ubuntu@"$IP":board/
-  ssh ubuntu@"$IP" "printf 'TOPIC=$TOPIC\nAWS_DEFAULT_REGION=us-east-1\n' > board/notify.env \
+  ssh ubuntu@"$IP" "printf 'TOPIC=$TOPIC\nVERIFIER=${VID:-}\nAWS_DEFAULT_REGION=us-east-1\n' > board/board.env \
     && sudo cp board/notify.service board/notify.timer /etc/systemd/system/ && sudo systemctl daemon-reload && sudo systemctl enable --now notify.timer \
     && sudo cp board/board.service /etc/systemd/system/ && sudo systemctl enable --now board && sudo systemctl restart board \
     && sudo cp board/Caddyfile /etc/caddy/Caddyfile && echo '${DOMAIN:+DOMAIN=$DOMAIN}' | sudo tee /etc/caddy/env >/dev/null && sudo systemctl restart caddy"
@@ -58,12 +59,16 @@ create-verifier)
     --iam-instance-profile Name=verifier-instance --user-data 'file://verifier-userdata.sh' \
     --block-device-mappings 'DeviceName=/dev/sda1,Ebs={VolumeSize=40,VolumeType=gp3}' \
     --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=verifier}]' --query 'Instances[0].InstanceId' --output text)
+  aws iam put-role-policy --role-name board-instance --policy-name start-verifier --policy-document \
+    "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"ec2:StartInstances\",\"Resource\":\"arn:aws:ec2:us-east-1:$ACCOUNT:instance/$VID\"}]}"
   printf 'VSG=%s\nVID=%s\n' "$VSG" "$VID" >> ids.env
   cat ids.env
   ;;
 push-verifier)
+  aws ec2 start-instances --instance-ids "$VID" >/dev/null && aws ec2 wait instance-running --instance-ids "$VID"
   VIP=$(aws ec2 describe-instances --instance-ids "$VID" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-  ssh -o StrictHostKeyChecking=accept-new ubuntu@"$VIP" 'mkdir -p board/bounty/judge; cloud-init status --wait >/dev/null || true'
+  until ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 ubuntu@"$VIP" true 2>/dev/null; do sleep 5; done
+  ssh ubuntu@"$VIP" 'mkdir -p board/bounty/judge; cloud-init status --wait >/dev/null || true'
   scp -q bounty/verify.py bounty/worker.py bounty/test_verify.py bounty/problems.json ubuntu@"$VIP":board/bounty/
   scp -q bounty/judge/Judge.lean bounty/judge/lakefile.toml bounty/judge/lean-toolchain ubuntu@"$VIP":board/bounty/judge/
   scp -q verifier.service ubuntu@"$VIP":board/

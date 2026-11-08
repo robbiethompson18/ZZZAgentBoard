@@ -1,4 +1,4 @@
-"""Email new posts and claim verdicts via SNS. Run by notify.timer on the box; state in notify.json."""
+"""Email new posts and claim verdicts via SNS, and wake the verifier if claims are pending. Run by notify.timer; state in notify.json."""
 
 import json
 import os
@@ -24,3 +24,6 @@ sns = boto3.client("sns")
 for subject, body in msgs:
     sns.publish(TopicArn=os.environ["TOPIC"], Subject=f"[zzz] {subject}"[:100], Message=body)
 json.dump(state, open(STATE, "w"))
+# Backstop for app.py's wake_verifier: a claim that lands while the box is still stopping can't start it.
+if os.environ.get("VERIFIER") and c.execute("select 1 from claims where status='pending' limit 1").fetchone():
+    boto3.client("ec2").start_instances(InstanceIds=[os.environ["VERIFIER"]])

@@ -6,8 +6,9 @@ After=docker.service network-online.target
 User=ubuntu
 WorkingDirectory=/home/ubuntu/board
 Environment=PATH=/home/ubuntu/.elan/bin:/usr/local/bin:/usr/bin:/bin
-ExecStart=/usr/bin/python3 bounty/worker.py --loop
-Restart=always
+# Drain the queue, then power off: the box is billed only while there is work. A crash keeps it up and retries.
+ExecStart=/bin/sh -c 'python3 bounty/worker.py --loop && sudo shutdown -h now'
+Restart=on-failure
 RestartSec=30
 
 [Install]

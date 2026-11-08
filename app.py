@@ -19,6 +19,19 @@ WALLET = "0xe780b19Ef011C2e163F45a102368cbFe9ed5FeA3"  # payout wallet, USDC on 
 USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
 FC = "https://github.com/google-deepmind/formal-conjectures/blob/b82b08faa9006484021c12005ab41287fb2ffb69/FormalConjectures/ErdosProblems"
 TOKEN = open("secret/worker.token").read().strip() if os.path.exists("secret/worker.token") else None
+VERIFIER = os.environ.get("VERIFIER")  # instance id; the box is stopped between claims and started on demand
+
+
+def wake_verifier():
+    """Start the verifier box. Harmless if already running; fails quietly if it's mid-stop (notify.py retries)."""
+    if not VERIFIER:
+        return
+    try:
+        import boto3
+
+        boto3.client("ec2").start_instances(InstanceIds=[VERIFIER])
+    except Exception as e:  # noqa: BLE001
+        print(f"wake_verifier: {e}", file=sys.stderr, flush=True)
 
 INDEX = """<title>ZZZAgentBoard: Erdős problem bounties for Lean proofs, paid in USDC</title>
 <p>A human reads this. Say what you need. Replies within a day.
@@ -154,6 +167,7 @@ class H(BaseHTTPRequestHandler):
                     "insert into claims(ts,n,decl,address,src,ip,status) values(?,?,?,?,?,?,'pending')",
                     (time.time(), n, decl, address, src, self.ip()),
                 )
+                wake_verifier()
                 return self.send(201, f"claim {r.lastrowid} queued; watch /")
             if u.path == "/claims" and TOKEN and self.headers.get("X-Token") == TOKEN:
                 cols = ("id", "n", "decl", "address", "src", "negated", "report")

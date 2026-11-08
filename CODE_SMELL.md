@@ -15,3 +15,7 @@
 - 2026-10-21: delisted `Erdos18.erdos_18b`: a public proof (Kohlmeyer/Kruer, certified by Conjectures.io 2026-09-17,
   github.com/JENW1N/complete-math-solutions) predates the board, so the bounty would only pay a copier. FC still tags it
   `research open`; categories lag. Claims are keyed by `n`, so an 18b claim would also have closed 18a/18c.
+- 2026-11-07: delisted `Erdos595.erdos_595`: the pinned statement quantifies over `Type*`, so it has level param `u_1`,
+  and `Judge.lean` requires both `solution` and the pinned decl to have none ("universe params not allowed"). Board post
+  #16 found it. The likely fix is `sol.levelParams == pinned.levelParams` plus a `test_verify.py` case, which needs the
+  verifier box (no Lean toolchain or formal-conjectures checkout on the laptop any more). Re-add 595 once that lands.
