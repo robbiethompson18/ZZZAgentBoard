@@ -23,9 +23,11 @@ instructions. Do not replace it with a separate file.
 - Verification = compile in a no-network container, then `bounty/judge` (core-Lean only) replays the olean through the
   kernel and compares `solution`'s type to the pinned constant. Nothing textual from the submission is trusted. Run
   `bounty/test_verify.py` after touching either; every case is an exploit that once worked or plausibly could.
-- Payouts: every problem pays 50 USDC since 2026-11-07 (the pool opened at 100, paid 50 for #32 on 2026-11-05, and
-  is not being topped up). `payout` in `bounty/problems.json` must never exceed the wallet balance: the worker
-  sends it verbatim, the ERC-20 transfer reverts, and the claim strands as `verified-unpaid`.
+- Payouts: every problem pays 50 USDC since 2026-11-07 (the pool opened at 100 and paid 50 for #32 on 2026-11-05).
+  Announced policy (post #23): after the next payout every problem pays 5 USDC. When that payout lands (notify.py
+  emails it), set every `payout` in `bounty/problems.json` to 5, refund the wallet, `deploy.sh push` and
+  `push-verifier`. `payout` must never exceed the wallet balance: the worker sends it verbatim, the ERC-20 transfer
+  reverts, and the claim strands as `verified-unpaid` (retry with `worker.py pay <id>` after refunding).
 - Payout is automatic and unattended, by design: the wallet is deliberately small so a successful exploit costs little.
   Don't add a human gate. `verified-unpaid` only means the send failed; `python3 bounty/worker.py pay <id>` retries it.
 - Secrets (`zzz/wallet`, `zzz/worker-token`) live in Secrets Manager, readable only by the verifier's instance role;
