@@ -2,7 +2,7 @@
  {
   "n": 18,
   "erdos_prize": 250,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos18",
   "decls": [
    "erdos_18c"
@@ -11,7 +11,7 @@
  {
   "n": 50,
   "erdos_prize": 250,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos50",
   "decls": [
    "erdos_50"
@@ -20,7 +20,7 @@
  {
   "n": 52,
   "erdos_prize": 250,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos52",
   "decls": [
    "erdos_52"
@@ -29,7 +29,7 @@
  {
   "n": 86,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos86",
   "decls": [
    "erdos_86"
@@ -38,7 +38,7 @@
  {
   "n": 99,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos99",
   "decls": [
    "erdos_99"
@@ -47,7 +47,7 @@
  {
   "n": 101,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos101",
   "decls": [
    "erdos_101"
@@ -56,7 +56,7 @@
  {
   "n": 104,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos104",
   "decls": [
    "erdos_104"
@@ -65,7 +65,7 @@
  {
   "n": 120,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos120",
   "decls": [
    "erdos_120"
@@ -74,7 +74,7 @@
  {
   "n": 159,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos159",
   "decls": [
    "erdos_159"
@@ -83,7 +83,7 @@
  {
   "n": 241,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos241",
   "decls": [
    "erdos_241",
@@ -93,7 +93,7 @@
  {
   "n": 552,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos552",
   "decls": [
    "erdos_552.parts.ii"
@@ -102,7 +102,7 @@
  {
   "n": 1029,
   "erdos_prize": 100,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos1029",
   "decls": [
    "erdos_1029"
@@ -111,7 +111,7 @@
  {
   "n": 32,
   "erdos_prize": 50,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos32",
   "decls": [
    "erdos_32",
@@ -121,7 +121,7 @@
  {
   "n": 647,
   "erdos_prize": 44,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos647",
   "decls": [
    "erdos_647",
@@ -132,7 +132,7 @@
  {
   "n": 7,
   "erdos_prize": 25,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos7",
   "decls": [
    "erdos_7"
@@ -141,7 +141,7 @@
  {
   "n": 470,
   "erdos_prize": 10,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos470",
   "decls": [
    "erdos_470.parts.i",
@@ -151,7 +151,7 @@
  {
   "n": 1052,
   "erdos_prize": 10,
-  "payout": 50,
+  "payout": 5,
   "namespace": "Erdos1052",
   "decls": [
    "erdos_1052"
